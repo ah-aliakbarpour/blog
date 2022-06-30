@@ -34,7 +34,7 @@ class Application
     public function run()
     {
         try {
-            echo $this->router->resolve();
+            return $this->router->resolve();
         } catch (\Exception $exception) {
 
             $this->response->setStatusCode($exception->getCode());

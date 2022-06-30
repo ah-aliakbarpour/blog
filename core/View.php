@@ -8,7 +8,7 @@ class View
 
     public function __construct($view, $params = [])
     {
-        $this->renderView($view, $params);
+        echo $this->renderView($view, $params);
     }
 
     public function renderView(string $view, $params = [])

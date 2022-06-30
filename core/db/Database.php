@@ -61,8 +61,6 @@ class Database
             $this->log("All migrations are applied");
             $this->log('');  // Line break
         }
-
-        //var_dump($appliedMigrations);
     }
 
     protected function createMigrationsTable()
