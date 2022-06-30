@@ -2,7 +2,7 @@
 
 namespace app\core\db;
 
-use app\core\Application;
+use app\core\App;
 
 class Database
 {
@@ -30,7 +30,7 @@ class Database
 
         $newMigrations = [];
 
-        $files = scandir(Application::$ROOT_DIR . '/migrations');
+        $files = scandir(App::$ROOT_DIR . '/migrations');
 
         $toApplyMigrations = array_diff($files, $appliedMigrations);
 
@@ -38,7 +38,7 @@ class Database
             if ($migration === '.' || $migration === '..')
                 continue;
 
-            require_once Application::$ROOT_DIR . '/migrations/' . $migration;
+            require_once App::$ROOT_DIR . '/migrations/' . $migration;
 
             $className = pathinfo($migration, PATHINFO_FILENAME);
 

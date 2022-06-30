@@ -2,7 +2,7 @@
 
 namespace app\core\db;
 
-use app\core\Application;
+use app\core\App;
 use app\core\Model;
 
 abstract class DbModel extends Model
@@ -11,17 +11,17 @@ abstract class DbModel extends Model
 
     abstract public function attributes(): array;
 
-    abstract public function primaryKey(): string;
+    //abstract public function primaryKey(): string;
 
 
-    public function save()
+    public function save(): bool
     {
         $tableName = $this->tableName();
         $attributes = $this->attributes();
 
         $params = array_map(fn($attr) => ":$attr", $attributes);
 
-        $statement = self::prepare("
+        $statement = App::db()->prepare("
             INSERT INTO $tableName(" . implode(', ', $attributes) . ")
             VALUES(" . implode(', ', $params) . ")
                             ");
@@ -40,7 +40,7 @@ abstract class DbModel extends Model
         $attributes = array_keys($where);
 
         $sqlWhere = implode('AND ', array_map(fn($attr) => "$attr = :$attr", $attributes));
-        $statement = self::prepare("SELECT * FROM $tableName WHERE $sqlWhere");
+        $statement = App::db()->prepare("SELECT * FROM $tableName WHERE $sqlWhere");
         foreach ($where as $key => $value)
             $statement->bindValue(":$key", $value);
 
@@ -48,10 +48,4 @@ abstract class DbModel extends Model
 
         return $statement->fetchObject(static::class);
     }
-
-    public static function prepare(string $sql)
-    {
-        return Application::$app->db->pdo->prepare($sql);
-    }
-
 }

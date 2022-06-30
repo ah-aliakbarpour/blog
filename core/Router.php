@@ -58,8 +58,8 @@ class Router
 
     public function resolve()
     {
-        $path = Application::request()->getPath();
-        $method = Application::request()->method();
+        $path = App::request()->getPath();
+        $method = App::request()->method();
 
         $callback = $this->getCallback($path, $method);
 

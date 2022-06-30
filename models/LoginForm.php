@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use app\core\Application;
+use app\core\App;
 use app\core\Model;
 
 class LoginForm extends Model
@@ -33,7 +33,7 @@ class LoginForm extends Model
 
         var_dump($user);
 
-        return Application::$app->login($user);
+        return App::$app->login($user);
     }
 
     public function labels(): array

@@ -62,7 +62,7 @@ abstract class Model
                     $className = $rule['class'];
                     $uniqueAttr = $rule['attribute'] ?? $attribute;
                     $tableName = $className::tableName();
-                    $statement = Application::$app->db->prepare("
+                    $statement = App::$app->db->prepare("
                         SELECT * FROM $tableName WHERE $uniqueAttr = :$uniqueAttr;
                     ");
                     $statement->bindValue(":$uniqueAttr", $value);

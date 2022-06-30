@@ -6,7 +6,7 @@ namespace app\core;
 use app\core\db\Database;
 use app\core\db\DbModel;
 
-class Application
+class App
 {
     public static string $ROOT_DIR;
 
@@ -17,7 +17,7 @@ class Application
     public Database $db;
     public Session $session;
 
-    public static Application $app;
+    public static App $app;
     public ?Controller $controller = null;
 
     public function __construct($rootDir, array $config)
@@ -50,8 +50,19 @@ class Application
         return self::$app->request;
     }
 
-    public static function response(): Request
+    public static function response(): Response
     {
-        return self::$app->request;
+        return self::$app->response;
     }
+
+    public static function session(): Session
+    {
+        return self::$app->session;
+    }
+
+    public static function db(): Database
+    {
+        return self::$app->db;
+    }
+
 }

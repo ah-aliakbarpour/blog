@@ -4,14 +4,15 @@ namespace app\core;
 
 class View
 {
-    public string $title = '';
+    // Page title
+    public string $title = 'Blog'; // Default value
 
     public function __construct($view, $params = [])
     {
         echo $this->renderView($view, $params);
     }
 
-    public function renderView(string $view, $params = [])
+    protected function renderView(string $view, $params = [])
     {
         $viewContent = $this->viewContent($view, $params);
         $layoutContent = $this->layoutContent();
@@ -22,7 +23,7 @@ class View
     protected function layoutContent()
     {
         ob_start();
-        include_once Application::$ROOT_DIR . "/views/layouts/app.php";
+        include_once App::$ROOT_DIR . "/views/layouts/app.php";
         return ob_get_clean();
     }
 
@@ -34,7 +35,7 @@ class View
             $$key = $value;
 
         ob_start();
-        include_once Application::$ROOT_DIR . "/views/$view.php";
+        include_once App::$ROOT_DIR . "/views/$view.php";
         return ob_get_clean();
     }
 }

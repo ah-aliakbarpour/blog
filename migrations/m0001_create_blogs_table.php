@@ -1,12 +1,12 @@
 <?php
 
-use app\core\Application;
+use app\core\App;
 
 class m0001_create_blogs_table
 {
     public function up()
     {
-        $db = Application::$app->db;
+        $db = App::$app->db;
 
         $SQL = "CREATE TABLE IF NOT EXISTS blogs (
                     id BIGINT AUTO_INCREMENT PRIMARY KEY,

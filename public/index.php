@@ -5,11 +5,7 @@
  * Date: 1401/4/6
  */
 
-use app\controllers\AuthController;
-use app\controllers\BlogController;
-use app\controllers\SiteController;
-use app\core\Application;
-use app\models\User;
+use app\core\App;
 
 
 //echo '<pre>';
@@ -37,20 +33,10 @@ $config = [
 ];
 
 
-$app = new Application(dirname(__DIR__), $config);
-
-$app->router->get('/', function () {
-    return 'Home';
-});
+$app = new App(dirname(__DIR__), $config);
 
 
-$app->router->get('/blog', [BlogController::class, 'index']);
-$app->router->get('/blog/{id}', [BlogController::class, 'show']);
-$app->router->get('/blog/create',  [BlogController::class, 'create']);
-$app->router->post('/blog/create',  [BlogController::class, 'save']);
-$app->router->get('/blog/{id}/edit',  [BlogController::class, 'edit']);
-$app->router->post('/blog/{id}/edit',  [BlogController::class, 'update']);
-$app->router->post('/blog/{id}/destroy',  [BlogController::class, 'destroy']);
-
+// Require routes
+require_once '../routes/web.php';
 
 $app->run();

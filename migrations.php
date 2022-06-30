@@ -5,7 +5,7 @@
  * Date: 1401/4/6
  */
 
-use app\core\Application;
+use app\core\App;
 
 
 // Require composer autoload
@@ -24,6 +24,6 @@ $config = [
     ],
 ];
 
-$app = new Application(__DIR__, $config);
+$app = new App(__DIR__, $config);
 
 $app->db->applyMigrations();

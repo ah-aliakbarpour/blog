@@ -1,6 +1,6 @@
 
 <?php
-use app\core\Application;
+use app\core\App;
 
 ?>
 
@@ -37,9 +37,10 @@ use app\core\Application;
 
 <div class="container">
 
-    <?php if (Application::$app->session->getFlash('success')): ?>
+    <?php if (App::$app->session->getFlash('success')): ?>
+        <br>
         <div class="alert alert-success">
-            <?php echo Application::$app->session->getFlash('success') ?>
+            <?php echo App::$app->session->getFlash('success') ?>
         </div>
     <?php endif; ?>
 
