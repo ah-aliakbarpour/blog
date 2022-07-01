@@ -23,6 +23,16 @@ class Database
         return $this->pdo->prepare($sql);
     }
 
+    public function exec($sql)
+    {
+        return $this->pdo->exec($sql);
+    }
+
+    public function query($sql)
+    {
+        return $this->pdo->query($sql);
+    }
+
     public function applyMigrations()
     {
         $this->createMigrationsTable();

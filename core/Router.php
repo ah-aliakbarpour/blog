@@ -73,17 +73,12 @@ class Router
 
         // Because of using controller, we should have an instance of controller to be able to use '$this' keyword
         // inside controller, so we create an instance
-//        if (is_array($callback))
-//        {
-//            $controller = new $callback[0]();
-//            Application::$app->controller = $controller;
-//            //$controller->action = $callback[1];
-//            $callback[0] = $controller;
-//
-////            foreach ($controller->getMiddleware() as $middleware) {
-////                $middleware->execute();
-////            }
-//        }
+        if (is_array($callback))
+        {
+            $callback[0] = new $callback[0]();
+            //App::$app->controller = $controller;
+            //$controller->action = $callback[1];
+        }
 
         return call_user_func($callback, $this->getIds($path)[0] ?? null);
     }

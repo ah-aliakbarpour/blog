@@ -14,7 +14,7 @@ class m0001_create_blogs_table
                     author VARCHAR(255) NOT NULL,
                     context LONGTEXT NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 )";
 
         $db->pdo->exec($SQL);

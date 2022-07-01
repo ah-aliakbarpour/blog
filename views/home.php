@@ -7,5 +7,7 @@ $this->title = 'Home';
 ?>
 
 <h1>Home</h1>
-<br>
-<h2>Welcome</h2>
+
+<h3>
+    <a href="/blog">Blog</a>
+</h3>

@@ -3,61 +3,121 @@
 namespace app\controllers;
 
 use app\core\App;
+use app\core\exception\NotFoundException;
 use app\core\View;
 use app\models\Blog;
 
 class BlogController
 {
+    public Blog $blog;
+
+    public function __construct()
+    {
+        $this->blog = new Blog();
+    }
+
     public function index()
     {
-        //
+        $blogs = $this->blog->get();
+
+        return new View('blog/index', [
+            'blogs' => $blogs
+        ]);
     }
 
     public function show($id)
     {
-        echo $id;
-        exit();
+        $blog = $this->blog->findOne(['id' => $id]);
+
+        if (!$blog)
+            throw new NotFoundException();
+
+        return new View('blog/show', [
+            'blog' => $blog,
+            'id' => $id,
+        ]);
     }
 
     public function create()
     {
-        $blog = new Blog();
-
-        return new View('create', [
-            'model' => $blog,
+        return new View('blog/create', [
+            'blog' => $this->blog,
         ]);
     }
 
     public function save()
     {
-        $blog = new Blog();
-        $blog->loadData(App::request()->getBody());
+        $this->blog->loadData(App::request()->getBody());
 
-        if (!$blog->validation())
-            return new View('create', [
-                'model' => $blog,
+        if (!$this->blog->validation())
+            return new View('blog/create', [
+                'blog' => $this->blog,
             ]);
 
-        $blog->save();
+        $this->blog->save();
 
-        App::session()->setFlash('success', 'Thanks for registering!');
+        App::session()->setFlash('success', 'Blog created successfully!');
 
-        App::response()->redirect('/');
-        return 1;
+        App::response()->redirect('/blog');
+
+        return true;
     }
 
     public function edit($id)
     {
-        //
+        $blog = $this->blog->findOne(['id' => $id]);
+
+        if (!$blog)
+            throw new NotFoundException();
+
+        $this->blog->id = $blog->id;
+        $this->blog->title = $blog->title;
+        $this->blog->author = $blog->author;
+        $this->blog->context = $blog->context;
+
+        return new View('blog/edit', [
+            'blog' => $this->blog,
+            'id' => $id,
+        ]);
     }
 
     public function update($id)
     {
-        //
+        $blog = $this->blog->findOne(['id' => $id]);
+
+        if (!$blog)
+            throw new NotFoundException();
+
+        $this->blog->loadData(App::request()->getBody());
+
+        if (!$this->blog->validation())
+            return new View('blog/edit', [
+                'blog' => $this->blog,
+                'id' => $id,
+            ]);
+
+        $this->blog->update($id);
+
+        App::session()->setFlash('success', 'Blog edited successfully!');
+
+        App::response()->redirect('/blog');
+
+        return true;
     }
 
     public function destroy($id)
     {
-        //
+        $blog = $this->blog->findOne(['id' => $id]);
+
+        if (!$blog)
+            throw new NotFoundException();
+
+        $this->blog->destroy($id);
+
+        App::session()->setFlash('success', 'Blog deleted successfully!');
+
+        App::response()->redirect('/blog');
+
+        return true;
     }
 }

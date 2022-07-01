@@ -11,23 +11,63 @@ abstract class DbModel extends Model
 
     abstract public function attributes(): array;
 
-    //abstract public function primaryKey(): string;
+    public function get()
+    {
+        $tableName = $this->tableName();
 
+        $data = App::db()->query("SELECT * FROM $tableName");
+
+        return $data->fetchAll(\PDO::FETCH_CLASS);
+    }
 
     public function save(): bool
     {
         $tableName = $this->tableName();
         $attributes = $this->attributes();
 
-        $params = array_map(fn($attr) => ":$attr", $attributes);
+        $params = array_map(fn($attribute) => ":$attribute", $attributes);
 
-        $statement = App::db()->prepare("
-            INSERT INTO $tableName(" . implode(', ', $attributes) . ")
-            VALUES(" . implode(', ', $params) . ")
-                            ");
+        $statement = App::db()->prepare(
+            "INSERT INTO $tableName(" . implode(', ', $attributes) . ")
+            VALUES(" . implode(', ', $params) . ")"
+        );
 
         foreach ($attributes as $attribute)
             $statement->bindValue(":$attribute", $this->{$attribute});
+
+        $statement->execute();
+
+        return true;
+    }
+
+    public function update($id): bool
+    {
+        $tableName = $this->tableName();
+        $attributes = $this->attributes();
+
+        $params = array_map(fn($attribute) => "$attribute = :$attribute", $attributes);
+
+        $statement = App::db()->prepare(
+            "UPDATE $tableName
+            SET " . implode(', ', $params) .
+            " WHERE id = $id;"
+        );
+
+        foreach ($attributes as $attribute)
+            $statement->bindValue(":$attribute", $this->{$attribute});
+
+        $statement->execute();
+
+        return true;
+    }
+
+    public function destroy($id): bool
+    {
+        $tableName = $this->tableName();
+
+        $statement = App::db()->prepare(
+            "DELETE FROM $tableName WHERE id = $id;"
+        );
 
         $statement->execute();
 
@@ -46,6 +86,6 @@ abstract class DbModel extends Model
 
         $statement->execute();
 
-        return $statement->fetchObject(static::class);
+        return $statement->fetch(\PDO::FETCH_OBJ);
     }
 }

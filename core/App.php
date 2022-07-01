@@ -10,7 +10,6 @@ class App
 {
     public static string $ROOT_DIR;
 
-    public string $layout = 'app';
     public Request $request;
     public Router $router;
     public Response $response;
@@ -18,7 +17,6 @@ class App
     public Session $session;
 
     public static App $app;
-    public ?Controller $controller = null;
 
     public function __construct($rootDir, array $config)
     {

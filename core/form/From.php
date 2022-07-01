@@ -7,9 +7,9 @@ use app\core\Model;
 class From
 {
 
-    public static function begin(string $action, string $method): From
+    public static function begin(string $action, string $method, string $property = ''): From
     {
-        echo sprintf('<form action="%s" method="%s">', $action, $method);
+        echo sprintf('<form action="%s" method="%s" %s>', $action, $method, $property);
         return new From();
     }
 
