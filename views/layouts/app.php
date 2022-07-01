@@ -15,7 +15,6 @@ use app\core\App;
 
 <div class="container mt-4">
     <?php if (App::$app->session->getFlash('success')): ?>
-        <br>
         <div class="alert alert-success">
             <?php echo App::$app->session->getFlash('success') ?>
         </div>

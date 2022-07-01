@@ -16,17 +16,42 @@ class BlogController
         $this->blog = new Blog();
     }
 
-    public function index()
+    public function index($params)
     {
-        $blogs = $this->blog->get();
+        $currentPage = $params['page'] ?? 1;
+        if (!is_numeric($currentPage) || $currentPage < 1)
+            $currentPage = 1;
+        $currentPage = intval($currentPage);
+
+        $limit = 5;
+        // Count all records
+        $allRecords = $this->blog->count();
+        $allPages = ceil($allRecords / $limit);
+
+        // Start of index
+        $start = ($currentPage * $limit) - $limit + 1;
+        // End of index
+        $end = $start + $limit - 1;
+        if ($end > $allRecords)
+            $end = $allRecords;
+
+        $blogs = $this->blog->paginate($currentPage, $limit);
 
         return new View('blog/index', [
-            'blogs' => $blogs
+            'blogs' => $blogs,
+            'allRecords' => $allRecords,
+            'allPages' => $allPages,
+            'currentPage' => $currentPage,
+            'limit' => $limit,
+            'start' => $start,
+            'end' => $end,
         ]);
     }
 
-    public function show($id)
+    public function show($params)
     {
+        $id = $params['id'];
+
         $blog = $this->blog->findOne(['id' => $id]);
 
         if (!$blog)
@@ -63,8 +88,10 @@ class BlogController
         return true;
     }
 
-    public function edit($id)
+    public function edit($params)
     {
+        $id = $params['id'];
+
         $blog = $this->blog->findOne(['id' => $id]);
 
         if (!$blog)
@@ -81,8 +108,10 @@ class BlogController
         ]);
     }
 
-    public function update($id)
+    public function update($params)
     {
+        $id = $params['id'];
+
         $blog = $this->blog->findOne(['id' => $id]);
 
         if (!$blog)
@@ -105,8 +134,10 @@ class BlogController
         return true;
     }
 
-    public function destroy($id)
+    public function destroy($params)
     {
+        $id = $params['id'];
+
         $blog = $this->blog->findOne(['id' => $id]);
 
         if (!$blog)

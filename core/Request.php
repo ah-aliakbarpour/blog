@@ -22,6 +22,49 @@ class Request
         return $path;
     }
 
+    public function getIds(): array
+    {
+        $path = $this->getPath();
+
+        $pathArr = explode('/', $path);
+
+        $ids = [];
+
+        foreach ($pathArr as $item)
+            if (is_numeric($item))
+                $ids[] = intval($item);
+
+        return $ids;
+    }
+
+    public function getParams(): array
+    {
+        $path = $_SERVER['REQUEST_URI'] ?? '';
+        $position = strpos($path, '?');
+
+        $path = $this->validatePath($path);
+
+        // Params starts when first ? appear
+        if ($position !== false)
+            $path = substr($path, $position + 1);
+        else
+            return [];
+
+        $paramsTemp = explode('&', $path);
+        $params = [];
+
+        foreach ($paramsTemp as $param) {
+            $data = explode('=', $param);
+            $key = $data[0] ?? null;
+            $value = $data[1] ?? null;
+            if (!$key || !$value)
+                continue;
+            $params[$key] = $value;
+        }
+
+        return $params;
+    }
+
     public function method(): string
     {
         return strtolower($_SERVER['REQUEST_METHOD']);

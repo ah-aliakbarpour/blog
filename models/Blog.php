@@ -2,9 +2,7 @@
 
 namespace app\models;
 
-use app\core\App;
 use app\core\db\DbModel;
-use app\core\Model;
 
 class Blog extends DbModel
 {

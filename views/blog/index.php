@@ -1,6 +1,12 @@
 <?php
 /**
-* @var $blogs
+ * @var $blogs
+ * @var $allRecords
+ * @var $allPages
+ * @var $currentPage
+ * @var $limit
+ * @var $start
+ * @var $end
  */
 
 // Page title
@@ -29,6 +35,12 @@ $this->title = 'Blogs List';
             <h3>There isn't any blog!</h3>
         </center>
     <?php else: ?>
+
+        <?php if (!($allRecords <= $limit)): ?>
+            <div>
+                <p><?php echo "Showing $start - $end of $allRecords results"; ?></p>
+            </div>
+        <?php endif; ?>
         <table class="table  table-hover">
             <thead>
                 <tr>
@@ -40,9 +52,9 @@ $this->title = 'Blogs List';
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($blogs as $index => $blog): ?>
+                <?php foreach ($blogs as $blog): ?>
                     <tr>
-                        <th><?php echo $index + 1 ?></th>
+                        <th><?php echo $start++ ?></th>
                         <td><?php echo $blog->title ?></td>
                         <td><?php echo $blog->author ?></td>
                         <td><?php echo strlen($blog->context) > 40 ? substr($blog->context,0,40)."..." : $blog->context; ?></td>
@@ -57,6 +69,30 @@ $this->title = 'Blogs List';
                 <?php endforeach; ?>
             </tbody>
         </table>
+
+        <?php if (!($allRecords <= $limit)): ?>
+            <br>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item <?php if ($currentPage == 1) echo 'disabled'; ?>">
+                        <a class="page-link" href="?page=<?php echo $currentPage - 1; ?>" tabindex="-1">Previous</a>
+                    </li>
+
+                    <?php
+                    for($page = 1; $page <= $allPages; $page++) {
+                        echo '<li class="page-item' . ($page == $currentPage ? ' disabled' : '') . '">';
+                        echo '<a class="page-link"  href = "?page=' . $page . '">' . $page . ' </a>';
+                        echo '</li>';
+                    }
+                    ?>
+
+                    <li class="page-item <?php if ($currentPage == $allPages) echo 'disabled'; ?>">
+                        <a class="page-link" href="?page=<?php echo $currentPage + 1; ?>">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        <?php endif; ?>
+
     <?php endif; ?>
 </div>
 

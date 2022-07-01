@@ -43,19 +43,6 @@ class Router
         return $this->routes[$method][$path] ?? false;
     }
 
-    public function getIds(string $path): array
-    {
-        $pathArr = explode('/', $path);
-
-        $ids = [];
-
-        foreach ($pathArr as $item)
-            if (is_numeric($item))
-                $ids[] = intval($item);
-
-        return $ids;
-    }
-
     public function resolve()
     {
         $path = App::request()->getPath();
@@ -80,6 +67,6 @@ class Router
             //$controller->action = $callback[1];
         }
 
-        return call_user_func($callback, $this->getIds($path)[0] ?? null);
+        return call_user_func($callback, ['id' => App::request()->getIds()[0] ?? null] + App::request()->getParams());
     }
 }

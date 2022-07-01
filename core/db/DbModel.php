@@ -20,6 +20,43 @@ abstract class DbModel extends Model
         return $data->fetchAll(\PDO::FETCH_CLASS);
     }
 
+    public function paginate($pageNumber, $limit)
+    {
+        $tableName = $this->tableName();
+
+        $data = App::db()->query(
+            "SELECT * FROM $tableName
+            LIMIT $limit OFFSET " . strval(intval(($pageNumber * $limit) - $limit)) . ";"
+        );
+
+        return $data->fetchAll(\PDO::FETCH_CLASS);
+    }
+
+    public function findOne($where)
+    {
+        $tableName = static::tableName();
+        $attributes = array_keys($where);
+
+        $sqlWhere = implode('AND ', array_map(fn($attr) => "$attr = :$attr", $attributes));
+        $statement = App::db()->prepare("SELECT * FROM $tableName WHERE $sqlWhere");
+        foreach ($where as $key => $value)
+            $statement->bindValue(":$key", $value);
+
+        $statement->execute();
+
+        return $statement->fetch(\PDO::FETCH_OBJ);
+    }
+
+    // Count all records
+    public function count(): int
+    {
+        $tableName = $this->tableName();
+
+        $rows = App::db()->query("SELECT count(*) FROM $tableName;")->fetchColumn();
+
+        return intval($rows);
+    }
+
     public function save(): bool
     {
         $tableName = $this->tableName();
@@ -72,20 +109,5 @@ abstract class DbModel extends Model
         $statement->execute();
 
         return true;
-    }
-
-    public function findOne($where)
-    {
-        $tableName = static::tableName();
-        $attributes = array_keys($where);
-
-        $sqlWhere = implode('AND ', array_map(fn($attr) => "$attr = :$attr", $attributes));
-        $statement = App::db()->prepare("SELECT * FROM $tableName WHERE $sqlWhere");
-        foreach ($where as $key => $value)
-            $statement->bindValue(":$key", $value);
-
-        $statement->execute();
-
-        return $statement->fetch(\PDO::FETCH_OBJ);
     }
 }
