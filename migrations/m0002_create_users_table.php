@@ -3,20 +3,19 @@
 
 use app\core\App;
 
-class m0001_create_blogs_table
+class m0002_create_users_table
 {
     public function up()
     {
         $db = App::$app->db;
 
-        $SQL = "CREATE TABLE IF NOT EXISTS blogs (
+        $SQL = "CREATE TABLE IF NOT EXISTS users (
                     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                    user_id BIGINT NOT NULL,
-                    title TEXT NOT NULL,
-                    context LONGTEXT NOT NULL,
+                    name VARCHAR(255) NOT NULL,
+                    access INT DEFAULT 0 NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-                )";
+                );";
 
         $db->pdo->exec($SQL);
     }

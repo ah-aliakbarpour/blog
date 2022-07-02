@@ -32,6 +32,7 @@ abstract class DbModel extends Model
         $tableName = $this->tableName();
 
         $attributes = array_keys($where);
+
         $sqlWhere = implode(' AND ', array_map(fn($attr) => "$attr " . $where[$attr][0] . " :$attr" , $attributes));
         if (!empty($where))
             $sqlWhere = "WHERE " . $sqlWhere;
@@ -41,7 +42,6 @@ abstract class DbModel extends Model
             $sqlLimitOffset = "LIMIT $limit ";
         if ($offset !== null)
             $sqlLimitOffset .= "OFFSET $offset";
-
         $statement = App::db()->prepare("SELECT $select FROM $tableName $sqlWhere $sqlLimitOffset;");
 
         foreach ($where as $key => $value)
@@ -74,7 +74,6 @@ abstract class DbModel extends Model
 
         foreach ($attributes as $attribute)
             $statement->bindValue(":$attribute", $this->{$attribute});
-
         $statement->execute();
 
         return true;

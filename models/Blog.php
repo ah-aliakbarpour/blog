@@ -6,6 +6,7 @@ use app\core\db\DbModel;
 
 class Blog extends DbModel
 {
+    public string $user_id = '1';
     public string $title = '';
     public string $author = '';
     public string $context = '';
@@ -14,7 +15,7 @@ class Blog extends DbModel
     {
         return [
             'title' => [self::RULE_REQUIRED],
-            'author' => [self::RULE_REQUIRED],
+            //'author' => [self::RULE_REQUIRED],
             'context' => [self::RULE_REQUIRED],
         ];
     }
@@ -35,6 +36,21 @@ class Blog extends DbModel
 
     public function attributes(): array
     {
-        return ['title', 'author', 'context'];
+        return [
+            'user_id',
+            'title',
+            'context',
+        ];
+    }
+
+    public function loadData($data): void
+    {
+        foreach ($data as $key => $value)
+            if (property_exists($this, $key))
+                $this->{$key} = $value;
+
+        $user = new User();
+        $user = $user->findOne(['id' => ['=', $this->user_id]]);
+        $this->author = $user->name;
     }
 }

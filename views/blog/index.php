@@ -1,8 +1,7 @@
 <?php
 /**
  * @var $blogs
- * @var $searchInTitle
- * @var $searchInContext
+ * @var $search
  * @var $allRecords
  * @var $allPages
  * @var $currentPage
@@ -15,6 +14,18 @@
 use app\core\form\From;
 
 $this->title = 'Blogs List';
+
+
+
+
+$allPages = ceil($allRecords / $limit);
+
+// Start of index
+$start = ($currentPage * $limit) - $limit + 1;
+// End of index
+$end = $start + $limit - 1;
+if ($end > $allRecords)
+    $end = $allRecords;
 
 ?>
 
@@ -31,19 +42,15 @@ $this->title = 'Blogs List';
 
 <br><br>
 
-<?php $form = From::begin('/blog', 'get') ?>
-    <div class="row">
-        <div class="col-md-5">
-            <?php echo $form->input($searchInTitle, 'st', 'text'); ?>
-        </div>
-        <div class="col-md-5">
-            <?php echo $form->input($searchInContext, 'sc', 'text'); ?>
-        </div>
-        <div class="col-md-2">
-            <br>
-            <input type="submit" value="Search" class="btn btn-primary btn-block">
-        </div>
+<?php $form = From::begin('/blog', 'get') ?><div class="row">
+    <div class="col-md-10">
+        <?php echo $form->input($search, 'search', 'text'); ?>
     </div>
+    <div class="col-md-2">
+        <br>
+        <input type="submit" value="Search" class="btn btn-primary btn-block">
+    </div>
+</div>
 <?php From::end() ?>
 
 <br>
@@ -91,7 +98,7 @@ $this->title = 'Blogs List';
 
         <?php if (!($allRecords <= $limit)): ?>
             <?php
-                $searchLink = "&st=$searchInTitle->st&sc=$searchInContext->sc";
+                $searchLink = "&search=$search->seearch";
             ?>
             <br>
             <nav aria-label="Page navigation example">

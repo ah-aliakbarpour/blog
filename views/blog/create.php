@@ -24,7 +24,6 @@ $this->title = 'Create Blog';
 
 <?php $form = From::begin('/blog/create', 'post') ?>
     <?php echo $form->input($blog, 'title', 'text'); ?>
-    <?php echo $form->input($blog, 'author', 'text'); ?>
     <?php echo $form->textArea($blog, 'context'); ?>
     <div class="mb-3 form-group">
         <button type="submit" class="btn btn-primary float-end">Create</button>

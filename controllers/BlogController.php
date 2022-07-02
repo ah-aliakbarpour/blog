@@ -7,7 +7,7 @@ use app\core\exception\NotFoundException;
 use app\core\View;
 use app\models\Blog;
 use app\models\SearchContext;
-use app\models\SearchTitle;
+use app\models\Search;
 
 class BlogController
 {
@@ -31,11 +31,8 @@ class BlogController
     public function index($params)
     {
         // Search
-        $searchInTitle = new SearchTitle();
-        $searchInTitle->loadData(App::request()->getBody());
-
-        $searchInContext = new SearchContext();
-        $searchInContext->loadData(App::request()->getBody());
+        $search = new Search();
+        $search->loadData(App::request()->getBody());
 
         // Pagination
         $currentPage = $params['page'] ?? 1;
@@ -46,40 +43,25 @@ class BlogController
         $limit = 5;
         // Count all records
         $allRecords = $this->blog->count([
-            'title' => ['LIKE' , $searchInTitle->st, '%', '%'],
-            'context' => ['LIKE' , $searchInContext->sc, '%', '%'],
+            'title' => ['LIKE' , $search->search, '%', '%'],
         ]);
-        $allPages = ceil($allRecords / $limit);
-
-        // Start of index
-        $start = ($currentPage * $limit) - $limit + 1;
-        // End of index
-        $end = $start + $limit - 1;
-        if ($end > $allRecords)
-            $end = $allRecords;
 
         $blogs = $this->blog->paginate($currentPage, $limit, [
-            'title' => ['LIKE' , $searchInTitle->st, '%', '%'],
-            'context' => ['LIKE' , $searchInContext->sc, '%', '%'],
+            'title' => ['LIKE' , $search->search, '%', '%'],
         ]);
 
         return new View('blog/index', [
             'blogs' => $blogs,
-            'searchInTitle' => $searchInTitle,
-            'searchInContext' => $searchInContext,
+            'search' => $search,
             'allRecords' => $allRecords,
-            'allPages' => $allPages,
             'currentPage' => $currentPage,
             'limit' => $limit,
-            'start' => $start,
-            'end' => $end,
         ]);
     }
 
     public function show($params)
     {
         $id = $params['id'];
-
         $blog = $this->checkId($id);
 
         return new View('blog/show', [
@@ -98,7 +80,6 @@ class BlogController
     public function save()
     {
         $this->blog->loadData(App::request()->getBody());
-
         if (!$this->blog->validation())
             return new View('blog/create', [
                 'blog' => $this->blog,
@@ -107,16 +88,15 @@ class BlogController
         $this->blog->save();
 
         App::session()->setFlash('success', 'Blog created successfully!');
-
         App::response()->redirect('/blog');
-
+        echo 111;
+        exit();
         return true;
     }
 
     public function edit($params)
     {
         $id = $params['id'];
-
         $blog = $this->checkId($id);
 
         $this->blog->id = $blog->id;
@@ -133,11 +113,9 @@ class BlogController
     public function update($params)
     {
         $id = $params['id'];
-
-        $blog = $this->checkId($id);
+        $this->checkId($id);
 
         $this->blog->loadData(App::request()->getBody());
-
         if (!$this->blog->validation())
             return new View('blog/edit', [
                 'blog' => $this->blog,
@@ -147,24 +125,19 @@ class BlogController
         $this->blog->update($id);
 
         App::session()->setFlash('success', 'Blog edited successfully!');
-
         App::response()->redirect('/blog');
-
         return true;
     }
 
     public function destroy($params)
     {
         $id = $params['id'];
-
         $blog = $this->checkId($id);
 
         $this->blog->destroy($id);
 
         App::session()->setFlash('success', 'Blog deleted successfully!');
-
         App::response()->redirect('/blog');
-
         return true;
     }
 }

@@ -4,21 +4,21 @@ namespace app\models;
 
 use app\core\Model;
 
-class SearchContext extends Model
+class Search extends Model
 {
-    public string $sc = '';
+    public string $search = '';
 
     public function rules(): array
     {
         return [
-            'sc' => [],
+            'st' => [],
         ];
     }
 
     public function labels(): array
     {
         return [
-            'sc' => 'Search In Context',
+            'st' => 'Search In Title',
         ];
     }
 }
