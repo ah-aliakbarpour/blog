@@ -3,6 +3,7 @@
 namespace app\core\db;
 
 use app\core\App;
+use app\core\form\InputField;
 use app\core\Model;
 
 abstract class DbModel extends Model
@@ -11,48 +12,63 @@ abstract class DbModel extends Model
 
     abstract public function attributes(): array;
 
-    public function get()
+    public function get($where = [])
     {
-        $tableName = $this->tableName();
-
-        $data = App::db()->query("SELECT * FROM $tableName");
-
-        return $data->fetchAll(\PDO::FETCH_CLASS);
+        return $this->where($where)->fetchAll(\PDO::FETCH_CLASS);
     }
 
-    public function paginate($pageNumber, $limit)
+    public function paginate($pageNumber, $limit, $where = [])
     {
-        $tableName = $this->tableName();
-
-        $data = App::db()->query(
-            "SELECT * FROM $tableName
-            LIMIT $limit OFFSET " . strval(intval(($pageNumber * $limit) - $limit)) . ";"
-        );
-
-        return $data->fetchAll(\PDO::FETCH_CLASS);
+        return $this->where($where, $limit, ($pageNumber * $limit) - $limit)->fetchAll(\PDO::FETCH_CLASS);
     }
 
     public function findOne($where)
     {
-        $tableName = static::tableName();
-        $attributes = array_keys($where);
+        return $this->where($where)->fetch(\PDO::FETCH_OBJ);
 
-        $sqlWhere = implode('AND ', array_map(fn($attr) => "$attr = :$attr", $attributes));
-        $statement = App::db()->prepare("SELECT * FROM $tableName WHERE $sqlWhere");
-        foreach ($where as $key => $value)
-            $statement->bindValue(":$key", $value);
-
-        $statement->execute();
-
-        return $statement->fetch(\PDO::FETCH_OBJ);
+//        $tableName = static::tableName();
+//
+//        $attributes = array_keys($where);
+//        $sqlWhere = implode('AND ', array_map(fn($attr) => "$attr = :$attr", $attributes));
+//
+//        $statement = App::db()->prepare("SELECT * FROM $tableName WHERE $sqlWhere");
+//        foreach ($where as $key => $value)
+//            $statement->bindValue(":$key", $value);
+//
+//        $statement->execute();
+//
+//        return $statement->fetch(\PDO::FETCH_OBJ);
     }
 
-    // Count all records
-    public function count(): int
+    public function where($where, $limit = null, $offset = null, $select = "*")
     {
         $tableName = $this->tableName();
 
-        $rows = App::db()->query("SELECT count(*) FROM $tableName;")->fetchColumn();
+        $attributes = array_keys($where);
+        $sqlWhere = implode(' AND ', array_map(fn($attr) => "$attr " . $where[$attr][0] . " :$attr" , $attributes));
+        if (!empty($where))
+            $sqlWhere = "WHERE " . $sqlWhere;
+
+        $sqlLimitOffset = "";
+        if ($limit !== null)
+            $sqlLimitOffset = "LIMIT $limit ";
+        if ($offset !== null)
+            $sqlLimitOffset .= "OFFSET $offset";
+
+        $statement = App::db()->prepare("SELECT $select FROM $tableName $sqlWhere $sqlLimitOffset;");
+
+        foreach ($where as $key => $value)
+            $statement->bindValue(":$key", ($value[2] ?? "") . $value[1] . ($value[3] ?? ""));
+
+        $statement->execute();
+
+        return $statement;
+    }
+
+    // Count all records
+    public function count($where = []): int
+    {
+        $rows = $this->where($where, null, null, "count(*)")->fetchColumn();
 
         return intval($rows);
     }

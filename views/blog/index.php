@@ -1,6 +1,8 @@
 <?php
 /**
  * @var $blogs
+ * @var $searchInTitle
+ * @var $searchInContext
  * @var $allRecords
  * @var $allPages
  * @var $currentPage
@@ -28,6 +30,23 @@ $this->title = 'Blogs List';
 </div>
 
 <br><br>
+
+<?php $form = From::begin('/blog', 'get') ?>
+    <div class="row">
+        <div class="col-md-5">
+            <?php echo $form->input($searchInTitle, 'st', 'text'); ?>
+        </div>
+        <div class="col-md-5">
+            <?php echo $form->input($searchInContext, 'sc', 'text'); ?>
+        </div>
+        <div class="col-md-2">
+            <br>
+            <input type="submit" value="Search" class="btn btn-primary btn-block">
+        </div>
+    </div>
+<?php From::end() ?>
+
+<br>
 
 <div>
     <?php if (empty($blogs)): ?>
@@ -71,23 +90,26 @@ $this->title = 'Blogs List';
         </table>
 
         <?php if (!($allRecords <= $limit)): ?>
+            <?php
+                $searchLink = "&st=$searchInTitle->st&sc=$searchInContext->sc";
+            ?>
             <br>
             <nav aria-label="Page navigation example">
                 <ul class="pagination">
                     <li class="page-item <?php if ($currentPage == 1) echo 'disabled'; ?>">
-                        <a class="page-link" href="?page=<?php echo $currentPage - 1; ?>" tabindex="-1">Previous</a>
+                        <a class="page-link" href="?page=<?php echo $currentPage - 1 . $searchLink; ?>" tabindex="-1">Previous</a>
                     </li>
 
                     <?php
                     for($page = 1; $page <= $allPages; $page++) {
                         echo '<li class="page-item' . ($page == $currentPage ? ' disabled' : '') . '">';
-                        echo '<a class="page-link"  href = "?page=' . $page . '">' . $page . ' </a>';
+                        echo '<a class="page-link"  href = "?page=' . $page . $searchLink . '">' . $page . ' </a>';
                         echo '</li>';
                     }
                     ?>
 
                     <li class="page-item <?php if ($currentPage == $allPages) echo 'disabled'; ?>">
-                        <a class="page-link" href="?page=<?php echo $currentPage + 1; ?>">Next</a>
+                        <a class="page-link" href="?page=<?php echo $currentPage + 1 . $searchLink; ?>">Next</a>
                     </li>
                 </ul>
             </nav>

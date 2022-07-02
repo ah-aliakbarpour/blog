@@ -6,6 +6,8 @@ use app\core\App;
 use app\core\exception\NotFoundException;
 use app\core\View;
 use app\models\Blog;
+use app\models\SearchContext;
+use app\models\SearchTitle;
 
 class BlogController
 {
@@ -16,8 +18,26 @@ class BlogController
         $this->blog = new Blog();
     }
 
+    protected function checkId($id)
+    {
+        $blog = $this->blog->findOne(['id' => ['=', $id]]);
+
+        if (!$blog)
+            throw new NotFoundException();
+
+        return $blog;
+    }
+
     public function index($params)
     {
+        // Search
+        $searchInTitle = new SearchTitle();
+        $searchInTitle->loadData(App::request()->getBody());
+
+        $searchInContext = new SearchContext();
+        $searchInContext->loadData(App::request()->getBody());
+
+        // Pagination
         $currentPage = $params['page'] ?? 1;
         if (!is_numeric($currentPage) || $currentPage < 1)
             $currentPage = 1;
@@ -25,7 +45,10 @@ class BlogController
 
         $limit = 5;
         // Count all records
-        $allRecords = $this->blog->count();
+        $allRecords = $this->blog->count([
+            'title' => ['LIKE' , $searchInTitle->st, '%', '%'],
+            'context' => ['LIKE' , $searchInContext->sc, '%', '%'],
+        ]);
         $allPages = ceil($allRecords / $limit);
 
         // Start of index
@@ -35,10 +58,15 @@ class BlogController
         if ($end > $allRecords)
             $end = $allRecords;
 
-        $blogs = $this->blog->paginate($currentPage, $limit);
+        $blogs = $this->blog->paginate($currentPage, $limit, [
+            'title' => ['LIKE' , $searchInTitle->st, '%', '%'],
+            'context' => ['LIKE' , $searchInContext->sc, '%', '%'],
+        ]);
 
         return new View('blog/index', [
             'blogs' => $blogs,
+            'searchInTitle' => $searchInTitle,
+            'searchInContext' => $searchInContext,
             'allRecords' => $allRecords,
             'allPages' => $allPages,
             'currentPage' => $currentPage,
@@ -52,10 +80,7 @@ class BlogController
     {
         $id = $params['id'];
 
-        $blog = $this->blog->findOne(['id' => $id]);
-
-        if (!$blog)
-            throw new NotFoundException();
+        $blog = $this->checkId($id);
 
         return new View('blog/show', [
             'blog' => $blog,
@@ -92,10 +117,7 @@ class BlogController
     {
         $id = $params['id'];
 
-        $blog = $this->blog->findOne(['id' => $id]);
-
-        if (!$blog)
-            throw new NotFoundException();
+        $blog = $this->checkId($id);
 
         $this->blog->id = $blog->id;
         $this->blog->title = $blog->title;
@@ -112,10 +134,7 @@ class BlogController
     {
         $id = $params['id'];
 
-        $blog = $this->blog->findOne(['id' => $id]);
-
-        if (!$blog)
-            throw new NotFoundException();
+        $blog = $this->checkId($id);
 
         $this->blog->loadData(App::request()->getBody());
 
@@ -138,10 +157,7 @@ class BlogController
     {
         $id = $params['id'];
 
-        $blog = $this->blog->findOne(['id' => $id]);
-
-        if (!$blog)
-            throw new NotFoundException();
+        $blog = $this->checkId($id);
 
         $this->blog->destroy($id);
 
