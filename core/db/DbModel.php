@@ -25,19 +25,6 @@ abstract class DbModel extends Model
     public function findOne($where)
     {
         return $this->where($where)->fetch(\PDO::FETCH_OBJ);
-
-//        $tableName = static::tableName();
-//
-//        $attributes = array_keys($where);
-//        $sqlWhere = implode('AND ', array_map(fn($attr) => "$attr = :$attr", $attributes));
-//
-//        $statement = App::db()->prepare("SELECT * FROM $tableName WHERE $sqlWhere");
-//        foreach ($where as $key => $value)
-//            $statement->bindValue(":$key", $value);
-//
-//        $statement->execute();
-//
-//        return $statement->fetch(\PDO::FETCH_OBJ);
     }
 
     public function where($where, $limit = null, $offset = null, $select = "*")
