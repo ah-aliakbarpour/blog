@@ -18,6 +18,7 @@ class Blog extends DbModel
     public string $created_at = '';
     public ?string $updated_at = null;
 
+    // validation rules
     public function rules(): array
     {
         return [
@@ -40,6 +41,7 @@ class Blog extends DbModel
         return 'blogs';
     }
 
+    // Database attributes
     public function attributes(): array
     {
         return [
@@ -49,6 +51,7 @@ class Blog extends DbModel
         ];
     }
 
+    // Retrieve only one record from database
     public function findOne($where)
     {
         $blog = parent::findOne($where);
@@ -59,6 +62,7 @@ class Blog extends DbModel
         $this->created_at = $blog->created_at;
         $this->updated_at = $blog->updated_at;
 
+        // Retrieve user name
         $user = new User();
         $user = $user->findOne(['id' => ['=', Blog::USER_ID]]);
         $this->author = $user->name;
@@ -66,17 +70,20 @@ class Blog extends DbModel
         return $blog;
     }
 
+    // get data from form and save in blog object
     public function loadData($data): void
     {
         foreach ($data as $key => $value)
             if (property_exists($this, $key))
                 $this->{$key} = $value;
 
+        // Retrieve user name
         $user = new User();
         $user = $user->findOne(['id' => ['=', Blog::USER_ID]]);
         $this->author = $user->name;
     }
 
+    // check that a use can update & delete a blog
     public function checkUserAccess(): bool
     {
         $user = new User();
@@ -91,6 +98,7 @@ class Blog extends DbModel
         return true;
     }
 
+    // Check if record with given id exists
     public function checkId($id)
     {
         $blog = $this->findOne(['id' => ['=', $id]]);
@@ -105,6 +113,7 @@ class Blog extends DbModel
     {
         parent::save();
 
+        // Alert for user
         App::session()->setFlash('success', 'Blog created successfully!');
         App::response()->redirect('/blog');
 
@@ -115,6 +124,7 @@ class Blog extends DbModel
     {
         parent::update($id);
 
+        // Alert for user
         App::session()->setFlash('success', 'Blog edited successfully!');
         App::response()->redirect('/blog');
 
@@ -125,6 +135,7 @@ class Blog extends DbModel
     {
         parent::destroy($id);
 
+        // Alert for user
         App::session()->setFlash('success', 'Blog deleted successfully!');
         App::response()->redirect('/blog');
 

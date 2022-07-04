@@ -14,7 +14,9 @@ class View
 
     protected function renderView(string $view, $params = [])
     {
+        // Include view content
         $viewContent = $this->viewContent($view, $params);
+        // Include layout content
         $layoutContent = $this->layoutContent();
         // Place view content inside layout
         return str_replace('{{content}}', $viewContent, $layoutContent);

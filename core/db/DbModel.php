@@ -22,15 +22,18 @@ abstract class DbModel extends Model
     {
         $blogs = $this->search($where, $limit, ($currentPage* $limit) - $limit)->fetchAll(\PDO::FETCH_CLASS);
 
+        // Get number of all records
         $allRecords = $this->count([
             ['title', 'context', 'name'], $where[1],
         ]);
 
+        // Validate current page number
         if (!is_numeric($currentPage) || $currentPage < 1)
             $currentPage = 1;
         $currentPage = intval($currentPage);
 
         $allPages = ceil($allRecords / $limit);
+
         // Start of index in each page
         $start = ($currentPage * $limit) - $limit + 1;
         // End of index in each page
@@ -38,6 +41,7 @@ abstract class DbModel extends Model
         if ($end > $allRecords)
             $end = $allRecords;
 
+        // Return necessary variables for paginating in view
         return [
             'records' => $blogs,
             'allRecords' => $allRecords,
@@ -49,27 +53,33 @@ abstract class DbModel extends Model
         ];
     }
 
+    // Retrieve only one record from database
     public function findOne($where)
     {
         $result = $this->where($where);
         return $result->fetch(\PDO::FETCH_OBJ);
     }
 
+    // Filter data
     public function where($where, $limit = null, $offset = null, $select = "*")
     {
         $tableName = $this->tableName();
 
         $attributes = array_keys($where);
 
+        // Create sql for where clause
         $sqlWhere = implode(' AND ', array_map(fn($attr) => "$attr " . $where[$attr][0] . " :$attr" , $attributes));
         if (!empty($where))
             $sqlWhere = "WHERE " . $sqlWhere;
 
+        // Create limit and offset claus
         $sqlLimitOffset = "";
         if ($limit !== null)
             $sqlLimitOffset = "LIMIT $limit ";
         if ($offset !== null)
             $sqlLimitOffset .= "OFFSET $offset";
+
+        // Query in database
         $statement = App::db()->prepare("SELECT $select FROM $tableName $sqlWhere $sqlLimitOffset;");
 
         foreach ($where as $key => $value)
@@ -80,6 +90,7 @@ abstract class DbModel extends Model
         return $statement;
     }
 
+    // Search in given fields
     public function search($where, $limit = null, $offset = null, $select = "blogs.*, users.name as author")
     {
         $tableName = $this->tableName();
@@ -87,17 +98,19 @@ abstract class DbModel extends Model
         $attributes = $where[0];
         $value = $where[1];
 
+        // Create sql for where clause
         $sqlWhere = implode(' OR ', array_map(fn($attr) => "$attr LIKE :value" , $attributes));
-
         if (!empty($where))
             $sqlWhere = "WHERE " . $sqlWhere;
 
+        // Create limit and offset claus
         $sqlLimitOffset = "";
         if ($limit !== null)
             $sqlLimitOffset = "LIMIT $limit ";
         if ($offset !== null)
             $sqlLimitOffset .= "OFFSET $offset";
 
+        // Query in database
         $statement = App::db()->prepare(
             "SELECT $select FROM $tableName
             INNER JOIN users ON users.id=blogs.user_id   
@@ -111,7 +124,7 @@ abstract class DbModel extends Model
         return $statement;
     }
 
-    // Count all records
+    // Count records
     public function count($where = []): int
     {
         $rows = $this->search($where, null, null, "count(*)")->fetchColumn();

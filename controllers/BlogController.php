@@ -19,21 +19,13 @@ class BlogController
         $this->blog = new Blog();
     }
 
-//    protected function checkId($id)
-//    {
-//        $blog = $this->blog->findOne(['id' => ['=', $id]]);
-//
-//        if (!$blog)
-//            throw new NotFoundException();
-//
-//        return $blog;
-//    }
-
     public function index($params)
     {
+        // Search form
         $search = new Search();
         $search->loadData(App::request()->getBody());
 
+        // Paginate
         $paginate = $this->blog->paginate($params['page'] ?? 1, 5, [
             ['title', 'context', 'name'], $search->search,
         ]);
@@ -75,6 +67,7 @@ class BlogController
 
     public function edit($params)
     {
+        // Check if this user created blog or not
         if (!$this->blog->checkUserAccess())
             return false;
 
@@ -89,6 +82,7 @@ class BlogController
 
     public function update($params)
     {
+        // Check if this user created blog or not
         if (!$this->blog->checkUserAccess())
             return false;
 
@@ -107,6 +101,7 @@ class BlogController
 
     public function destroy($params)
     {
+        // Check if this user created blog or not
         if (!$this->blog->checkUserAccess())
             return false;
 
