@@ -20,6 +20,12 @@ use app\core\App;
         </div>
     <?php endif; ?>
 
+    <?php if (App::$app->session->getFlash('danger')): ?>
+        <div class="alert alert-danger">
+            <?php echo App::$app->session->getFlash('danger') ?>
+        </div>
+    <?php endif; ?>
+
     {{content}}
 </div>
 

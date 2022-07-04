@@ -7,6 +7,7 @@ use app\core\db\DbModel;
 class User extends DbModel
 {
     public string $name = '';
+    public string $access = '';
 
 
     public function rules(): array

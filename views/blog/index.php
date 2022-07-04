@@ -1,13 +1,7 @@
 <?php
 /**
- * @var $blogs
+ * @var $paginate
  * @var $search
- * @var $allRecords
- * @var $allPages
- * @var $currentPage
- * @var $limit
- * @var $start
- * @var $end
  */
 
 // Page title
@@ -15,17 +9,7 @@ use app\core\form\From;
 
 $this->title = 'Blogs List';
 
-
-
-
-$allPages = ceil($allRecords / $limit);
-
-// Start of index
-$start = ($currentPage * $limit) - $limit + 1;
-// End of index
-$end = $start + $limit - 1;
-if ($end > $allRecords)
-    $end = $allRecords;
+$blogs = $paginate['records']
 
 ?>
 
@@ -62,9 +46,9 @@ if ($end > $allRecords)
         </center>
     <?php else: ?>
 
-        <?php if (!($allRecords <= $limit)): ?>
+        <?php if (!($paginate['allRecords'] <= $paginate['limit'])): ?>
             <div>
-                <p><?php echo "Showing $start - $end of $allRecords results"; ?></p>
+                <p><?php echo "Showing".$paginate['start']." - ".$paginate['end']." of ".$paginate['allRecords']." results"; ?></p>
             </div>
         <?php endif; ?>
         <table class="table  table-hover">
@@ -80,7 +64,7 @@ if ($end > $allRecords)
             <tbody>
                 <?php foreach ($blogs as $blog): ?>
                     <tr>
-                        <th><?php echo $start++ ?></th>
+                        <th><?php echo $paginate['start']++ ?></th>
                         <td><?php echo $blog->title ?></td>
                         <td><?php echo $blog->author ?></td>
                         <td><?php echo strlen($blog->context) > 40 ? substr($blog->context,0,40)."..." : $blog->context; ?></td>
@@ -96,27 +80,27 @@ if ($end > $allRecords)
             </tbody>
         </table>
 
-        <?php if (!($allRecords <= $limit)): ?>
+        <?php if (!($paginate['allRecords'] <= $paginate['limit'])): ?>
             <?php
                 $searchLink = "&search=$search->seearch";
             ?>
             <br>
             <nav aria-label="Page navigation example">
                 <ul class="pagination">
-                    <li class="page-item <?php if ($currentPage == 1) echo 'disabled'; ?>">
-                        <a class="page-link" href="?page=<?php echo $currentPage - 1 . $searchLink; ?>" tabindex="-1">Previous</a>
+                    <li class="page-item <?php if ($paginate['currentPage'] == 1) echo $paginate['disabled']; ?>">
+                        <a class="page-link" href="?page=<?php echo $paginate['currentPage'] - 1 . $searchLink; ?>" tabindex="-1">Previous</a>
                     </li>
 
                     <?php
-                    for($page = 1; $page <= $allPages; $page++) {
-                        echo '<li class="page-item' . ($page == $currentPage ? ' disabled' : '') . '">';
+                    for($page = 1; $page <= $paginate['allPages']; $page++) {
+                        echo '<li class="page-item' . ($page == $paginate['currentPage'] ? ' disabled' : '') . '">';
                         echo '<a class="page-link"  href = "?page=' . $page . $searchLink . '">' . $page . ' </a>';
                         echo '</li>';
                     }
                     ?>
 
-                    <li class="page-item <?php if ($currentPage == $allPages) echo 'disabled'; ?>">
-                        <a class="page-link" href="?page=<?php echo $currentPage + 1 . $searchLink; ?>">Next</a>
+                    <li class="page-item <?php if ($paginate['currentPage'] == $paginate['allPages']) echo 'disabled'; ?>">
+                        <a class="page-link" href="?page=<?php echo $paginate['currentPage'] + 1 . $searchLink; ?>">Next</a>
                     </li>
                 </ul>
             </nav>

@@ -25,7 +25,6 @@ $this->title = 'Edit Blog';
 
 <?php $form = From::begin('/blog/' . $id . '/edit', 'post') ?>
     <?php echo $form->input($blog, 'title', 'text'); ?>
-    <?php echo $form->input($blog, 'author', 'text'); ?>
     <?php echo $form->textArea($blog, 'context'); ?>
     <div class="mb-3 form-group  float-end">
         <button type="submit" class="btn btn-success">Edit</button>

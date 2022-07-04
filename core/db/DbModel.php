@@ -14,17 +14,45 @@ abstract class DbModel extends Model
 
     public function get($where = [])
     {
-        return $this->where($where)->fetchAll(\PDO::FETCH_CLASS);
+        $result = $this->where($where);
+        return $result->fetchAll(\PDO::FETCH_CLASS);
     }
 
-    public function paginate($pageNumber, $limit, $where = [])
+    public function paginate($currentPage, $limit, $where = []): array
     {
-        return $this->where($where, $limit, ($pageNumber * $limit) - $limit)->fetchAll(\PDO::FETCH_CLASS);
+        $blogs = $this->search($where, $limit, ($currentPage* $limit) - $limit)->fetchAll(\PDO::FETCH_CLASS);
+
+        $allRecords = $this->count([
+            ['title', 'context', 'name'], $where[1],
+        ]);
+
+        if (!is_numeric($currentPage) || $currentPage < 1)
+            $currentPage = 1;
+        $currentPage = intval($currentPage);
+
+        $allPages = ceil($allRecords / $limit);
+        // Start of index in each page
+        $start = ($currentPage * $limit) - $limit + 1;
+        // End of index in each page
+        $end = $start + $limit - 1;
+        if ($end > $allRecords)
+            $end = $allRecords;
+
+        return [
+            'records' => $blogs,
+            'allRecords' => $allRecords,
+            'allPages' => $allPages,
+            'limit' => $limit,
+            'currentPage' => $currentPage,
+            'start' => $start,
+            'end' => $end,
+        ];
     }
 
     public function findOne($where)
     {
-        return $this->where($where)->fetch(\PDO::FETCH_OBJ);
+        $result = $this->where($where);
+        return $result->fetch(\PDO::FETCH_OBJ);
     }
 
     public function where($where, $limit = null, $offset = null, $select = "*")
@@ -52,10 +80,41 @@ abstract class DbModel extends Model
         return $statement;
     }
 
+    public function search($where, $limit = null, $offset = null, $select = "blogs.*, users.name as author")
+    {
+        $tableName = $this->tableName();
+
+        $attributes = $where[0];
+        $value = $where[1];
+
+        $sqlWhere = implode(' OR ', array_map(fn($attr) => "$attr LIKE :value" , $attributes));
+
+        if (!empty($where))
+            $sqlWhere = "WHERE " . $sqlWhere;
+
+        $sqlLimitOffset = "";
+        if ($limit !== null)
+            $sqlLimitOffset = "LIMIT $limit ";
+        if ($offset !== null)
+            $sqlLimitOffset .= "OFFSET $offset";
+
+        $statement = App::db()->prepare(
+            "SELECT $select FROM $tableName
+            INNER JOIN users ON users.id=blogs.user_id   
+            $sqlWhere $sqlLimitOffset;");
+
+        foreach ($attributes as $item)
+            $statement->bindValue("value", "%$value%");
+
+        $statement->execute();
+
+        return $statement;
+    }
+
     // Count all records
     public function count($where = []): int
     {
-        $rows = $this->where($where, null, null, "count(*)")->fetchColumn();
+        $rows = $this->search($where, null, null, "count(*)")->fetchColumn();
 
         return intval($rows);
     }
